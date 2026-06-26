@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Area, AreaChart } from "recharts";
+import { Area, AreaChart, XAxis, YAxis } from "recharts";
 interface GraphProps {
   name: string;
   description?: string;

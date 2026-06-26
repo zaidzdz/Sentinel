@@ -6,15 +6,6 @@ import Graph from "./Graph";
 import Sidebar from "./Sidebar";
 import Dial from "./Dial";
 import { MetricsType, ServerType } from "./types";
-const ZERO_METRICS: MetricsType = {
-  cpu: 0,
-  system_name: "",
-  host_name: "",
-  total_ram: 0,
-  used_ram: 0,
-  num_cpu: 0,
-  cpu_temp: 0,
-};
 async function getServerMetrics(ip: string): Promise<MetricsType> {
   const response = await fetch("http://" + ip + ":3000/metrics");
   const data = await response.json();
@@ -30,9 +21,8 @@ function App() {
         try {
           const data = await getServerMetrics(server.ip);
           setMetrics((prev) => ({ ...prev, [server.ip]: data }));
-        } catch (e) {
-          setMetrics((prev) => ({ ...prev, [server.ip]: ZERO_METRICS }));
-        }
+          console.log(data.cpu);
+        } catch (e) {}
       });
     }, 100);
     return () => clearInterval(interval);
@@ -42,23 +32,20 @@ function App() {
     <div className="flex flex-row h-screen w-screen overflow-hidden">
       <Toaster
         position="top-right"
-        gap={10}
-        expand
         toastOptions={{
           style: {
             background: "var(--panel-2)",
             borderColor: "var(--line)",
             color: "var(--fg)",
             fontSize: 12,
-            padding: "10px 14px",
+            padding: "8px 12px",
             width: "fit-content",
             minWidth: 250,
-            borderRadius: "var(--radius)",
-            boxShadow: "var(--shadow)",
           },
           classNames: {
             description: "!text-fg-soft",
-            error: "!border-warn !text-warn",
+            error:
+              "!bg-warn !border-warn !text-bg [&_[data-icon]>svg]:!text-bg [&_[data-description]]:!text-bg", //used ai for this
           },
           duration: 1000, //in miliseconds
         }}
@@ -70,12 +57,9 @@ function App() {
         currentServer={currentServer}
         setCurrentServer={setCurrentServer}
       />
-      <main className="overflow-y-scroll p-6 transition-all duration-75">
+      <main className="flex-none overflow-y-scroll p-6 flex flex-wrap items-start align-top content-start self-start transition-all duration-75">
         {currentServer && (
-          <div
-            key={currentServer.ip}
-            className="flex flex-row flex-wrap items-start content-start"
-          >
+          <div key={currentServer.ip}>
             <Graph
               name="CPU"
               description="4 cores"
@@ -85,22 +69,6 @@ function App() {
               name="CPU"
               description="4 cores"
               metric={metrics[currentServer.ip]?.cpu ?? 0}
-            />
-            <Graph
-              name="RAM"
-              description="16 GB"
-              metric={
-                (metrics[currentServer.ip]?.used_ram ?? 0) /
-                (metrics[currentServer.ip]?.total_ram ?? 0)
-              }
-            />
-            <Dial
-              name="RAM"
-              description="16 GB"
-              metric={
-                (metrics[currentServer.ip]?.used_ram ?? 0) /
-                (metrics[currentServer.ip]?.total_ram ?? 0)
-              }
             />
           </div>
         )}
