@@ -7,16 +7,13 @@ interface DialProps {
 
 export default function Dial({ name, description, metric }: DialProps) {
   const [percent, setPercent] = useState(0.55);
-  const [history, setHistory] = useState<number[]>([]);
 
   useEffect(
     function () {
-      setHistory((history) => [...history.slice(-30), metric]);
       setPercent(metric);
     },
     [metric],
   );
-  const data = history.map((v, i) => ({ t: i, cpu: v }));
 
   return (
     <div className="w-50 h-50 bg-panel rounded-ui m-2 flex flex-col overflow-hidden border-line border hover:border-accent transition-all duration-200 ease-in-out relative">
